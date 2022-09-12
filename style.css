@@ -1,0 +1,27 @@
+.nav-items {
+    margin: 0 100px;
+}
+
+.nav-link {
+    margin: auto 5px
+}
+
+.inner {
+    margin: 10rem 0 0 0;
+}
+
+footer {
+    text-align: center;
+}
+
+.form-cont {
+    margin: 9rem auto auto auto;
+}
+
+.rubric-cont {
+    margin: 5rem auto auto auto;
+}
+
+h5 {
+    color: #0AA1DD;
+}

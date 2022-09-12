@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
+    <title>Rubrics</title>
+</head>
+
+<body>
+  <header>
+    <div>
+        <nav class="navbar navbar-expand-lg" style="background-color: white;">
+            <div class="container-fluid nav-items">
+              <a class="navbar-brand" href="#">My Science Class</a>
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse justify-content-end" id="navbarNavAltMarkup">
+                <div class="navbar-nav">
+                  <a class="nav-link" aria-current="page" href="index.html">Home</a>
+                  <a class="nav-link" href="login.html">Login</a>
+                  <a class="nav-link" href="register.html">Sign up</a>
+                </div>
+              </div>
+            </div>
+          </nav>
+    </div>
+  </header>
+
+  <body>
+    <div class="container rubric-cont">
+      <h1>Rubric: Classwork</h1>
+      <h5 class="mb-5">Activity: Microscope lab</h5>
+      <table class="table table-hover">
+        <thead>
+          <tr class="align-top">
+            <th scope="col">Criterion</th>
+            <th scope="col">Description</th>
+            <th scope="col">Points (Out of 10)</th>
+            <th scope="col">Weight (%)</th>
+            <th scope="col">Observations</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Instruction</th>
+            <td>Products are handed complete, following the instructions and deadlines for each of them.</td>
+            <td><input type="number" name="points_instructions" id="points_instructions" min="0" max="10"></td>
+            <td class="text-center">0.3</td>
+            <td><input type="text" name="obs_instructions" id="obs_instructions"></td>
+          </tr>
+          <tr>
+            <th scope="row">Content</th>
+            <td>Demonstrate full knowledge of their work with explanations and elaboration.</td>
+            <td><input type="number" name="points_content" id="points_content" min="0" max="10"></td>
+            <td class="text-center">0.2</td>
+            <td><input type="text" name="obs_content" id="obs_content"></td>
+          </tr>
+          <tr>
+            <th scope="row">Organization</th>
+            <td>Present the information in a coherent way, without major grammatical or spelling errors, and the products are neat and readable.</td>
+            <td><input type="number" name="points_organization" id="points_organization" min="0" max="10"></td>
+            <td class="text-center">0.2</td>
+            <td><input type="text" name="obs_organization" id="obs_organization"></td>
+          </tr>
+          <tr>
+            <th scope="row">Effort & Creativity</th>
+            <td>Strives to create a good product that shows quality, dedication, and proper time management that allows her to review her work, delve into the information, and present the information in a clear and/or creative way.</td>
+            <td><input type="number" name="points_effort" id="points_effort" min="0" max="10"></td>
+            <td class="text-center">0.3</td>
+            <td><input type="number" name="points_effort" id="points_effort"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="container mt-5">
+      <div class="row">
+        <div class="col-3">
+          <select class="form-select" name="group" id="group">
+            <option selected>GRADE</option>
+            <option value="1">5A</option>
+            <option value="2">5B</option>
+            <option value="3">5C</option>
+          </select>
+        </div>
+
+        <div class="col-6">
+          <select class="form-select" name="student-name" id="student-name">
+            <option selected>STUDENT NAME</option>
+            <option value="1">MILTON SILVA</option>
+            <option value="2">NYDIA ROBAYO</option>
+          </select>
+        </div>
+
+        <div class="col-3">
+          <p class="mt-2 text-center">TOTAL POINTS: <strong>35</strong>/40</p>
+        </div>
+
+      </div>
+    </div>
+  </body>
