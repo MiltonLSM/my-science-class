@@ -12,6 +12,7 @@ app.config['SECRET_KEY'] = "welcome2THEcomewel"
 Bootstrap(app)
 db = SQLAlchemy(app)
 
+
 #------------------------------------ LOGIN MANAGER --------------------------------#
 
 login_manager = LoginManager()
@@ -20,6 +21,7 @@ login_manager.init_app(app)
 @login_manager.user_loader
 def load_user(admin_id):
     return Admin.query.get(int(admin_id))
+
 
 #------------------------------------- DATA BASES ----------------------------------#
 
@@ -40,9 +42,28 @@ db.create_all()
 def home():
     return render_template('index.html')
 
-@app.route('/login')
+@app.route('/login', methods=["GET", "POST"])
 def login():
-    return render_template('login.html')
+    form = LoginForm()
+    if form.validate_on_submit():
+        email = form.email.data
+        password = form.password.data
+
+        user = Admin.query.filter_by(email=email).first()
+
+        if user == None:
+            flash("The email doesn't exist. Please try again!")
+            return redirect(url_for('login'))
+        else:
+            if check_password_hash(user.password, password):
+                login_user(user)
+                return redirect(url_for('admin_home'))
+            else:
+                flash("Password incorrect. Please try again!")
+                return redirect(url_for('login'))
+        
+    return render_template('login.html', form=form)
+
 
 @app.route('/register', methods=["GET", "POST"])
 def register():
