@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, EmailField, PasswordField, SubmitField, FloatField, TextAreaField
+from wtforms import StringField, EmailField, PasswordField, SubmitField, FloatField, TextAreaField, FormField, FieldList, Form
 from wtforms.validators import DataRequired
 
 class RegisterForm(FlaskForm):
@@ -14,12 +14,14 @@ class LoginForm(FlaskForm):
     password = PasswordField("Password", validators=[DataRequired()])
     submit = SubmitField("Login")
 
-# class RubricCriterionForm(FlaskForm):
-#     criterion = StringField("Criterion", validators=[DataRequired()])
-#     description = TextAreaField("Description", validators=[DataRequired()])
-#     weight = FloatField("Weight", validators=[DataRequired()])
-#     submit = SubmitField("Add Criterion")
+class RubricItemForm(FlaskForm):
+    criterion = StringField("Criterion", validators=[DataRequired()])
+    item_description = TextAreaField("Description")
+    weight = FloatField("Weight", validators=[DataRequired()])
+    submit = SubmitField("Add Item")
 
-# class RubricForm(FlaskForm):
-#     rubric_name = StringField("Rubric Name", validators=[DataRequired()])
-#     submit = SubmitField("Create Rubric")
+class RubricForm(FlaskForm):
+    rubric_name = StringField("Rubric Name", validators=[DataRequired()])
+    rubric_description = TextAreaField("Description")
+    # rubric_item = FieldList(FormField(RubricItemForm), min_entries=2)
+    submit = SubmitField("Create Rubric")
