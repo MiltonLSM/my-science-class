@@ -27,7 +27,19 @@ h5 {
 }
 
 #submit {
-    margin-top: 10px;
+    margin-top: 20px;
+    width: 120px;
+}
+
+#btn_edit {
+    margin-top: 20px;
+    width: 120px;
+}
+
+#cancel {
+    margin-top: 20px;
+    width: 120px;
+    margin-left: 15px;
 }
 
 .item-form {

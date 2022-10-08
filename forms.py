@@ -19,6 +19,9 @@ class RubricItemForm(FlaskForm):
     item_description = TextAreaField("Description")
     weight = FloatField("Weight", validators=[DataRequired()])
     submit = SubmitField("Add Item")
+    btn_edit = SubmitField("Edit Item")
+    cancel = SubmitField("Cancel", render_kw={'formnovalidate':True})
+
 
 class RubricForm(FlaskForm):
     rubric_name = StringField("Rubric Name", validators=[DataRequired()])

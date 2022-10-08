@@ -1,15 +1,23 @@
-{% include "header.html" %}
+{% extends 'base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
 
-  <div class="container d-flex w-50 p-3">
-    <main role="main" class="inner cover">
-      <h1 class="cover-heading mb-4">Welcome to the Science Class</h1>
-      <p class="lead mb-5">Here you will find the resources to develop the scientific skills you must have by the end of fifth grade. 
-        If you already have an account click on <b>"Continue my learning"</b> to begin, if not, go to <b>"Register"</b> and create your account</p>
-      <br>
-      <p class="lead">
-        <a href="{{ url_for('grade_act') }}" class="btn btn-lg btn-primary">Continue my learning</a>
-      </p>
-    </main>
-  </div>
+{% block page_name %}| Home{% endblock %}
+
+{% block page_content %}
+
+<div class="container d-flex w-50 p-3">
+  <main role="main" class="inner cover">
+    <h1 class="cover-heading mb-4">Welcome to the Science Class</h1>
+    <p class="lead mb-5">Here you will find the resources to develop the scientific skills you must have by the end of
+      fifth grade.
+      If you already have an account click on <b>"Continue my learning"</b> to begin, if not, go to <b>"Register"</b>
+      and create your account</p>
+    <br>
+    <p class="lead">
+      <a href="{{ url_for('grade_act') }}" class="btn btn-lg btn-primary">Continue my learning</a>
+    </p>
+  </main>
+</div>
 
 {% include "footer.html" %}
+{% endblock %}

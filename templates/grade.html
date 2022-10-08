@@ -1,4 +1,9 @@
-{% include "header.html" %}
+{% extends 'base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block page_name %} | Register{% endblock %}
+
+{% block page_content %}
 
   <div class="container rubric-cont">
     <h1>Rubric: Classwork</h1>
@@ -75,3 +80,4 @@
   </div>
 
 {% include "footer.html" %}
+{% endblock %}

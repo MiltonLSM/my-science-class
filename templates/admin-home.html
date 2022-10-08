@@ -1,4 +1,9 @@
-{% include "header.html" %}
+{% extends 'base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block page_name %}| Admin{% endblock %}
+
+{% block page_content %}
 
 <div class="container">
     <div class="row mt-5">
@@ -27,3 +32,4 @@
 </div>
 
 {% include "footer.html" %}
+{% endblock %}

@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from flask_bootstrap import Bootstrap
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import login_user, logout_user, UserMixin, LoginManager
+from flask_login import login_user, logout_user, UserMixin, LoginManager, login_required, current_user
 from forms import LoginForm, RegisterForm, RubricForm, RubricItemForm
 
 app = Flask(__name__)
@@ -57,7 +57,7 @@ db.create_all()
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return render_template('index.html', current_user=current_user)
 
 @app.route('/register', methods=["GET", "POST"])
 def register():
@@ -86,7 +86,7 @@ def register():
         login_user(new_admin)
         return redirect(url_for("admin_home"))
 
-    return render_template('register.html', form=form)
+    return render_template('register.html', form=form, current_user=current_user)
 
 
 @app.route('/login', methods=["GET", "POST"])
@@ -109,21 +109,23 @@ def login():
                 flash("Password incorrect. Please try again!")
                 return redirect(url_for('login'))
         
-    return render_template('login.html', form=form)
+    return render_template('login.html', form=form, current_user=current_user)
 
 
 @app.route('/logout')
 def logout():
     logout_user()
-    return redirect(url_for('index'))
+    return redirect(url_for('home'))
 
 
 @app.route('/admin-home')
+@login_required
 def admin_home():
-    return render_template('admin-home.html')
+    return render_template('admin-home.html', current_user=current_user)
 
 
 @app.route("/new-rubric", methods=["GET", "POST"])
+@login_required
 def new_rubric():
     form = RubricForm()
     if form.validate_on_submit():
@@ -135,10 +137,11 @@ def new_rubric():
         db.session.commit()
         return redirect(url_for("add_items", rubric_id=new_rubric.id))
 
-    return render_template("new-rubric.html", form=form)
+    return render_template("new-rubric.html", form=form, current_user=current_user)
 
 
 @app.route("/add-items/<int:rubric_id>", methods=["GET", "POST"])
+@login_required
 def add_items(rubric_id):
     form = RubricItemForm()
     requested_rubric = Rubric.query.get(rubric_id)
@@ -150,14 +153,22 @@ def add_items(rubric_id):
             weight = form.weight.data,
             rubric = requested_rubric
         )
-
+        
+        
         db.session.add(new_item)
         db.session.commit()
         return redirect(url_for("add_items", rubric_id=requested_rubric.id))
+    
+    weight_sum = 0
+    for item in requested_rubric.items:
+        weight_sum += item.weight
+    print(weight_sum)
 
-    return render_template("add-items.html", rubric=requested_rubric, form=form)
+    return render_template("add-items.html", rubric=requested_rubric, form=form, current_user=current_user, weight_sum=weight_sum)
+
 
 @app.route("/edit-item/<int:item_id>", methods=["GET", "POST"])
+@login_required
 def edit_item(item_id):
     item = RubricItem.query.get(item_id) # Get the item from the database
     requested_rubric = Rubric.query.get(item.rubric_id)
@@ -167,28 +178,37 @@ def edit_item(item_id):
         weight=item.weight
     )
     if edit_form.validate_on_submit(): 
-        item.criterion = edit_form.criterion.data
-        item.description = edit_form.item_description.data
-        item.weight = edit_form.weight.data
-        db.session.commit()
-        return redirect(url_for("add_items", rubric_id=item.rubric_id))
+        if edit_form.cancel.data:
+            return redirect(url_for("add_items", rubric_id=item.rubric_id))
+        else:
+            item.criterion = edit_form.criterion.data
+            item.description = edit_form.item_description.data
+            item.weight = edit_form.weight.data
+            db.session.commit()
+            return redirect(url_for("add_items", rubric_id=item.rubric_id))
     
-    return render_template("add-items.html", rubric=requested_rubric, form=edit_form)
+    weight_sum = 0
+    for item in requested_rubric.items:
+        weight_sum += item.weight
+    print(weight_sum)
+
+    return render_template("add-items.html", rubric=requested_rubric, form=edit_form, is_editing=True, current_user=current_user, weight_sum=weight_sum)
+
 
 @app.route("/delete-item/<int:item_id>")
+@login_required
 def delete_item(item_id):
     item_to_delete = RubricItem.query.get(item_id)
     db.session.delete(item_to_delete)
     db.session.commit()
     return redirect(url_for("add_items", rubric_id=item_to_delete.rubric_id))
 
-@app.route('/grade-act')
-def grade_act():
-    return render_template('grade.html')
 
-@app.route('/prueba')
-def prueba():
-    return render_template('prueba.html')
+@app.route('/grade-act')
+@login_required
+def grade_act():
+    return render_template('grade.html', current_user=current_user)
+
 
 if __name__ == "__main__":
     app.run(debug=True)

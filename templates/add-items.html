@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% import "bootstrap/wtf.html" as wtf %}
 
-{% block page_name %}New rubric{% endblock %}
+{% block page_name %}| Design rubric{% endblock %}
 
 {% block page_content %}
 
@@ -10,7 +10,45 @@
     <h1 class="my-5">Rubric: {{ rubric.rubric_name }}</h1>
     <h3 class="mb-3">Add Item </h3>
 
-      {{ wtf.quick_form(form, novalidate=True, button_map={"submit": "primary"}) }}
+    {% if weight_sum != 100 or is_editing: %}
+    <form action="" method="POST" class="form" role="form">
+      {{ form.csrf_token() }}
+      <div class="row">
+        <div class="form-group col-md-8">
+          {{ wtf.form_field(form.criterion, class="form-control") }}
+        </div>
+        <div class="form.group col-md-4">
+          {{ wtf.form_field(form.weight, class="form-control") }}
+        </div>  
+      </div>
+      <div class="form-group mt-3">
+        {{ wtf.form_field(form.item_description, class="form-control") }}
+      </div>
+      <div class="form-group">
+        {% if is_editing: %}
+        {{ wtf.form_field(form.btn_edit, class="form-control btn btn-primary") }}
+        {{ wtf.form_field(form.cancel, class="form-control btn btn-outline-dark") }}
+        {% else: %}
+        {{ wtf.form_field(form.submit, class="form-control btn btn-primary") }}
+        {% endif %}
+        
+      </div>
+    </form>
+    {% else: %}
+    <p class="text-info">This rubric is complete. It's total weight is already 100%, if you want to modify something, click on "Edit"</p>
+    {% endif %}
+    <div class="row my-5">
+      <h4 class="col-md-6">Total weight: {{ weight_sum }}%</h4>
+      {% if weight_sum < 100: %}
+      <h4 class="col-md-6">Missing weight: {{ 100 - weight_sum }}%</h4>
+      <p class="text-info">You need to add items or edit their weight to complete 100</p>
+      {% elif weight_sum > 100: %}
+      <h4 class="col-md-6">Extra weight: {{ weight_sum - 100 }}%</h4>
+      <p class="text-danger">You need to remove items or edit their weight to complete 100</p>
+      {% endif %}
+    </div>
+      
+
       <hr class="my-5">
   </div>   
 
@@ -19,11 +57,13 @@
     <table class="table table-hover">
       <thead>
         <tr class="align-top">
-          <th scope="col">Criterion</th>
-          <th scope="col">Description</th>
-          <th scope="col" class="text-end">Weight (%)</th>
-          <th scope="col" class="text-end">Edit</th>
-          <th scope="col" class="text-end">Remove</th>
+            <th scope="col">Criterion</th>
+            <th scope="col">Description</th>
+            <th scope="col" class="text-end">Weight (%)</th>
+            <th scope="col" class="text-end">Edit</th>
+            {% if not is_editing: %}
+            <th scope="col" class="text-end">Remove</th>
+            {% endif %}
         </tr>
       </thead>
       <tbody>
@@ -33,7 +73,11 @@
             <td>{{ item.description }}</td>
             <td class="text-end">{{ item.weight }}</td>
             <td class="text-end"><a href="{{ url_for('edit_item', item_id=item.id) }}">Edit</a></td>
+
+            {% if not is_editing: %}
             <td class="text-end"><a href="{{ url_for('delete_item', item_id=item.id) }}">Remove</a></td>
+            {% endif %}
+
         </tr>
         {% endfor %}
       </tbody>
