@@ -8,7 +8,7 @@
 <div class="container">
     <div class="row mt-5">
 
-        <div class="col-6">
+        <div class="col-md-6">
             <h3 class="mb-5">Activities</h3>
             <ul>
                 <li>Activity 1</li>
@@ -17,15 +17,35 @@
                 <li>Activity 4</li>
                 <li>Activity 5</li>
             </ul>
+        </div>
 
-            
+        <div class="col-md-6">
+            <h3 class="mb-5">Goals</h3>
+            <table class="table table-striped">
+                <tbody>
+                    {% for goal in all_goals: %}
+                    <tr>
+                        <td>
+                            <h6 class="mb-0">{{ goal.code }} {{ goal.topic }}</h6>
+                            <p class="mb-2">{{ goal.goal_description }}</p>
+                            <p>
+                                <a href="{{ url_for('edit_goal', goal_code=goal.code) }}" class="pe-2">Edit</a>  |  
+                                <a href="{{ url_for('delete_goal', goal_code=goal.code) }}" class="ps-2">Remove</a>
+                            </p>
+                            
+                        </td>
+                        
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
 
         <div class="mt-5">
             <a class="btn btn-primary mt-3" href="{{ url_for('new_rubric') }}">Create Rubric</a>
             <a class="btn btn-primary mt-3" href="#">Add Student</a>
             <a class="btn btn-primary mt-3" href="#">Create Activity</a>
-            <a class="btn btn-primary mt-3" href="#">Create Goal</a><br>
+            <a class="btn btn-primary mt-3" href="{{ url_for('add_goal') }}">Create Goal</a><br>
             <a class="btn btn-primary mt-3" href="#">Load Report</a>
         </div>
     </div>

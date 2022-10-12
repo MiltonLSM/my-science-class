@@ -4,7 +4,7 @@ from sqlalchemy.orm import relationship
 from flask_bootstrap import Bootstrap
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, UserMixin, LoginManager, login_required, current_user
-from forms import LoginForm, RegisterForm, RubricForm, RubricItemForm
+from forms import LoginForm, RegisterForm, RubricForm, RubricItemForm, GoalForm
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///science_class.db'
@@ -49,6 +49,14 @@ class RubricItem(db.Model):
     weight = db.Column(db.Float(), nullable=False)
     rubric_id = db.Column(db.Integer, db.ForeignKey("rubrics.id"))
     rubric = relationship("Rubric", back_populates="items")
+
+class Goal(db.Model):
+    __tablename__ = "goals"
+    code = db.Column(db.String(15), primary_key=True)
+    goal_description = db.Column(db.String(1000), nullable=False)
+    level = db.Column(db.String(250), nullable=False)
+    competency = db.Column(db.String(250), nullable=False)
+    topic = db.Column(db.String(250), nullable=False)
 
 db.create_all()
 
@@ -121,7 +129,8 @@ def logout():
 @app.route('/admin-home')
 @login_required
 def admin_home():
-    return render_template('admin-home.html', current_user=current_user)
+    goals = Goal.query.all()
+    return render_template('admin-home.html', current_user=current_user, all_goals=goals)
 
 
 @app.route("/new-rubric", methods=["GET", "POST"])
@@ -203,6 +212,61 @@ def delete_item(item_id):
     db.session.commit()
     return redirect(url_for("add_items", rubric_id=item_to_delete.rubric_id))
 
+@app.route("/add-goal", methods=["GET", "POST"])
+@login_required
+def add_goal():
+    form = GoalForm()
+    if form.validate_on_submit():
+
+        if Goal.query.filter_by(code=form.code.data).first():
+            flash("This code is already in use. Please change the code and try again.")
+            return redirect(url_for('add_goal'))
+
+        new_goal = Goal(
+            code = form.code.data,
+            goal_description = form.goal_description.data,
+            level = form.level.data,
+            competency = form.competency.data,
+            topic = form.topic.data
+        )
+        db.session.add(new_goal)
+        db.session.commit()
+        return redirect(url_for("admin_home"))
+
+    return render_template('goals.html', form=form, current_user=current_user)
+
+
+@app.route("/edit-goal/<goal_code>", methods=["GET", "POST"])
+@login_required
+def edit_goal(goal_code):
+    goal = Goal.query.get(goal_code)
+    edit_form = GoalForm(
+        code = goal.code,
+        goal_description = goal.goal_description,
+        level = goal.level,
+        competency = goal.competency,
+        topic = goal.topic
+    )
+
+    if edit_form.validate_on_submit():
+        goal.code = edit_form.code.data
+        goal.goal_description = edit_form.goal_description.data
+        goal.level = edit_form.level.data
+        goal.competency = edit_form.competency.data
+        goal.topic = edit_form.topic.data
+        db.session.commit()
+        return redirect(url_for("admin_home"))
+
+    return render_template("goals.html", form=edit_form, current_user=current_user, is_editing=True)
+
+
+@app.route("/delete-goal/<goal_code>")
+@login_required
+def delete_goal(goal_code):
+    goal_to_delete = Goal.query.get(goal_code)
+    db.session.delete(goal_to_delete)
+    db.session.commit()
+    return redirect(url_for("admin_home"))
 
 @app.route('/grade-act')
 @login_required

@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block page_name %} | Register{% endblock %}
+
+{% block page_content %}
+
+  <div class="container rubric-cont">
+    <h1 class="my-5">New Goal: </h1>
+
+    {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <p class="text-danger">{{ message }}</p>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+    <form action="" method="POST" role="form" class="form">
+        {{ form.csrf_token() }}
+        <div class="row">
+            <div class="form-group col-md-2">
+                {{ wtf.form_field(form.code, class="form-control") }}
+            </div>
+            <div class="form-group col-md-5">
+              {{ wtf.form_field(form.topic, class="form-control") }}
+            </div>
+            <div class="form-group col-md-2">
+                {{ wtf.form_field(form.level, class="form-control") }}
+            </div>
+            <div class="form-group col-md-3">
+                {{ wtf.form_field(form.competency, class="form-control") }}
+            </div>
+            
+        </div>
+
+        <div class="form-group mt-3">
+            {{ wtf.form_field(form.goal_description, class="form-control") }}
+        </div>
+
+        <div class="form-group">
+            {% if is_editing: %}
+            {{ wtf.form_field(form.edit, class="form-control btn btn-primary") }}
+            {% else: %}
+            {{ wtf.form_field(form.submit, class="form-control btn btn-primary") }}
+            {% endif %}
+            
+            
+        </div>
+
+    </form>
+
+    
+
+  </div>
+    
+
+    
+
+{% include "footer.html" %}
+{% endblock %}

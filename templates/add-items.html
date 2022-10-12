@@ -26,7 +26,7 @@
       </div>
       <div class="form-group">
         {% if is_editing: %}
-        {{ wtf.form_field(form.btn_edit, class="form-control btn btn-primary") }}
+        {{ wtf.form_field(form.edit, class="form-control btn btn-primary") }}
         {{ wtf.form_field(form.cancel, class="form-control btn btn-outline-dark") }}
         {% else: %}
         {{ wtf.form_field(form.submit, class="form-control btn btn-primary") }}
@@ -49,7 +49,7 @@
     </div>
       
 
-      <hr class="my-5">
+  <hr class="my-5">
   </div>   
 
   <div class="container rubric-cont">

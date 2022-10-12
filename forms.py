@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, EmailField, PasswordField, SubmitField, FloatField, TextAreaField, FormField, FieldList, Form
+from wtforms import StringField, EmailField, PasswordField, SubmitField, FloatField, TextAreaField, SelectField
 from wtforms.validators import DataRequired
 
 class RegisterForm(FlaskForm):
@@ -19,7 +19,7 @@ class RubricItemForm(FlaskForm):
     item_description = TextAreaField("Description")
     weight = FloatField("Weight", validators=[DataRequired()])
     submit = SubmitField("Add Item")
-    btn_edit = SubmitField("Edit Item")
+    edit = SubmitField("Edit Item")
     cancel = SubmitField("Cancel", render_kw={'formnovalidate':True})
 
 
@@ -28,3 +28,12 @@ class RubricForm(FlaskForm):
     rubric_description = TextAreaField("Description")
     # rubric_item = FieldList(FormField(RubricItemForm), min_entries=2)
     submit = SubmitField("Create Rubric")
+
+class GoalForm(FlaskForm):
+    code = StringField("CODE", validators=[DataRequired()])
+    goal_description = TextAreaField("GOAL", validators=[DataRequired()])
+    level = SelectField("LEVEL", choices=["Low", "Basic", "High", "Outstanding"], validators=[DataRequired()])
+    competency = SelectField("COMPETENCY", choices=["Use of Scienctific Knowlege", "Inquiry", "Phenomena Explanation"])
+    topic = StringField("CORE IDEA", validators=[DataRequired()])
+    submit = SubmitField("ADD GOAL")
+    edit = SubmitField("EDIT GOAL")
