@@ -1,17 +1,13 @@
-from flask import Flask, render_template, redirect, url_for, flash
+from flask import Flask, render_template, redirect, url_for, flash, abort
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from flask_bootstrap import Bootstrap
+from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, UserMixin, LoginManager, login_required, current_user
-from forms import LoginForm, RegisterForm, RubricForm, RubricItemForm, GoalForm
+from forms import ActivityForm, LoginForm, RegisterForm, RubricForm, RubricItemForm, GoalForm
+from databases import app, db, User, Rubric, RubricItem, Goal, Activity
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///science_class.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = "welcome2THEcomewel"
-Bootstrap(app)
-db = SQLAlchemy(app)
 
 
 #------------------------------------ LOGIN MANAGER --------------------------------#
@@ -20,59 +16,35 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 @login_manager.user_loader
-def load_user(admin_id):
-    return Admin.query.get(int(admin_id))
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
-
-#------------------------------------- DATA BASES ----------------------------------#
-
-class Admin(db.Model, UserMixin):
-    __tablename__ = "admin-users"
-    id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String(250), nullable=False)
-    last_name = db.Column(db.String(250), nullable=False)
-    email = db.Column(db.String(250), nullable=False)
-    password = db.Column(db.String(250), nullable=False)
-
-class Rubric(db.Model):
-    __tablename__ = "rubrics"
-    id = db.Column(db.Integer, primary_key=True)
-    rubric_name = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.Text, nullable=False)
-    items = relationship("RubricItem", back_populates="rubric")
-
-class RubricItem(db.Model):
-    __tablename__ = "rubric_items"
-    id = db.Column(db.Integer, primary_key=True)
-    criterion = db.Column(db.String(250), nullable=False)
-    description = db.Column(db.String(1000), nullable=False)
-    weight = db.Column(db.Float(), nullable=False)
-    rubric_id = db.Column(db.Integer, db.ForeignKey("rubrics.id"))
-    rubric = relationship("Rubric", back_populates="items")
-
-class Goal(db.Model):
-    __tablename__ = "goals"
-    code = db.Column(db.String(15), primary_key=True)
-    goal_description = db.Column(db.String(1000), nullable=False)
-    level = db.Column(db.String(250), nullable=False)
-    competency = db.Column(db.String(250), nullable=False)
-    topic = db.Column(db.String(250), nullable=False)
+#---------------------------------- CREATE DATABASES -------------------------------#
 
 db.create_all()
 
-
 #------------------------------------- URL ROUTES ----------------------------------#
+
+def admin_only(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if current_user.group != "ADMIN":
+            return abort(403)
+        return f(*args, **kwargs)
+    return decorated_function
 
 @app.route('/')
 def home():
     return render_template('index.html', current_user=current_user)
 
+
 @app.route('/register', methods=["GET", "POST"])
 def register():
+    class_codes = {"CODE5A":"5A", "CODE5B":"5B", "CODE5C":"5C", "CODEADM":"ADMIN"}
     form = RegisterForm()
     if form.validate_on_submit(): 
 
-        if Admin.query.filter_by(email=form.email.data).first():
+        if User.query.filter_by(email=form.email.data).first():
             flash("You've already signed up with that email, log in instead!")
             return redirect(url_for('login'))
 
@@ -82,17 +54,30 @@ def register():
             salt_length=8,
         )
 
-        new_admin = Admin(
-            first_name = form.first_name.data,
-            last_name = form.last_name.data,
-            email = form.email.data,
-            password = hashed_and_salt_password
-        )
+        if form.class_code.data in class_codes:
+            if class_codes[form.class_code.data] == form.group.data:
+                new_user = User(
+                    first_name = form.first_name.data,
+                    last_name = form.last_name.data,
+                    email = form.email.data,
+                    password = hashed_and_salt_password,
+                    group = form.group.data,
+                )
+                db.session.add(new_user)
+                db.session.commit()
+                login_user(new_user)
 
-        db.session.add(new_admin)
-        db.session.commit()
-        login_user(new_admin)
-        return redirect(url_for("admin_home"))
+                if form.group.data == "ADMIN":
+                    return redirect(url_for("admin_home"))
+                return redirect(url_for("student_home"))
+
+            else:
+                flash("Your class code does not match your group. Please enter a valid class code")
+                return redirect(url_for('register'))
+        
+        else:
+            flash("The class does not exist. Please enter a valid class code")
+            return redirect(url_for('register'))
 
     return render_template('register.html', form=form, current_user=current_user)
 
@@ -104,7 +89,7 @@ def login():
         email = form.email.data
         password = form.password.data
 
-        user = Admin.query.filter_by(email=email).first()
+        user = User.query.filter_by(email=email).first()
 
         if user == None:
             flash("The email doesn't exist. Please try again!")
@@ -112,7 +97,10 @@ def login():
         else:
             if check_password_hash(user.password, password):
                 login_user(user)
-                return redirect(url_for('admin_home'))
+                if user.group == "ADMIN":
+                    return redirect(url_for('admin_home'))
+                return redirect(url_for("student_home"))
+
             else:
                 flash("Password incorrect. Please try again!")
                 return redirect(url_for('login'))
@@ -128,13 +116,16 @@ def logout():
 
 @app.route('/admin-home')
 @login_required
+@admin_only
 def admin_home():
     goals = Goal.query.all()
-    return render_template('admin-home.html', current_user=current_user, all_goals=goals)
+    activities = Activity.query.all()
+    return render_template('admin-home.html', current_user=current_user, all_goals=goals, all_activities=activities)
 
 
 @app.route("/new-rubric", methods=["GET", "POST"])
 @login_required
+@admin_only
 def new_rubric():
     form = RubricForm()
     if form.validate_on_submit():
@@ -151,6 +142,7 @@ def new_rubric():
 
 @app.route("/add-items/<int:rubric_id>", methods=["GET", "POST"])
 @login_required
+@admin_only
 def add_items(rubric_id):
     form = RubricItemForm()
     requested_rubric = Rubric.query.get(rubric_id)
@@ -171,13 +163,13 @@ def add_items(rubric_id):
     weight_sum = 0
     for item in requested_rubric.items:
         weight_sum += item.weight
-    print(weight_sum)
 
     return render_template("add-items.html", rubric=requested_rubric, form=form, current_user=current_user, weight_sum=weight_sum)
 
 
 @app.route("/edit-item/<int:item_id>", methods=["GET", "POST"])
 @login_required
+@admin_only
 def edit_item(item_id):
     item = RubricItem.query.get(item_id) # Get the item from the database
     requested_rubric = Rubric.query.get(item.rubric_id)
@@ -206,14 +198,17 @@ def edit_item(item_id):
 
 @app.route("/delete-item/<int:item_id>")
 @login_required
+@admin_only
 def delete_item(item_id):
     item_to_delete = RubricItem.query.get(item_id)
     db.session.delete(item_to_delete)
     db.session.commit()
     return redirect(url_for("add_items", rubric_id=item_to_delete.rubric_id))
 
+
 @app.route("/add-goal", methods=["GET", "POST"])
 @login_required
+@admin_only
 def add_goal():
     form = GoalForm()
     if form.validate_on_submit():
@@ -238,6 +233,7 @@ def add_goal():
 
 @app.route("/edit-goal/<goal_code>", methods=["GET", "POST"])
 @login_required
+@admin_only
 def edit_goal(goal_code):
     goal = Goal.query.get(goal_code)
     edit_form = GoalForm(
@@ -262,16 +258,74 @@ def edit_goal(goal_code):
 
 @app.route("/delete-goal/<goal_code>")
 @login_required
+@admin_only
 def delete_goal(goal_code):
     goal_to_delete = Goal.query.get(goal_code)
     db.session.delete(goal_to_delete)
     db.session.commit()
     return redirect(url_for("admin_home"))
 
+
+@app.route("/add-activity", methods=["GET", "POST"])
+@login_required
+@admin_only
+def add_activity():
+    form = ActivityForm()
+    if form.validate_on_submit():
+        new_activity = Activity(
+            activity_name = form.activity_name.data,
+            rubric = Rubric.query.get(form.rubric.data),
+            goal = Goal.query.get(form.goal.data)
+        )
+        db.session.add(new_activity)
+        db.session.commit()
+        return redirect(url_for("admin_home"))
+
+    return render_template('activity.html', current_user=current_user, form=form)
+
+
+@app.route("/edit-act/<int:activity_id>", methods=["GET", "POST"])
+@login_required
+@admin_only
+def edit_activity(activity_id):
+    act = Activity.query.get(activity_id)
+    edit_form = ActivityForm(
+        activity_name = act.activity_name,
+        rubric = act.rubric.id,
+        goal = act.goal.code 
+    )
+    
+    if edit_form.validate_on_submit():
+        act.activity_name = edit_form.activity_name.data
+        act.rubric = Rubric.query.get(edit_form.rubric.data)
+        act.goal = Goal.query.get(edit_form.goal.data)
+        db.session.commit()
+        return redirect(url_for("admin_home"))
+
+    return render_template("activity.html", current_user=current_user, form=edit_form)
+
+
+@app.route("/delete-activity/<int:activity_id>")
+@login_required
+@admin_only
+def delete_act(activity_id):
+    act_to_delete = Activity.query.get(activity_id)
+    db.session.delete(act_to_delete)
+    db.session.commit()
+    return redirect(url_for("admin_home"))
+
+
 @app.route('/grade-act')
 @login_required
+@admin_only
 def grade_act():
     return render_template('grade.html', current_user=current_user)
+
+
+@app.route("/student-home")
+@login_required
+def student_home():
+    return render_template('student-home.html', current_user=current_user)
 
 
 if __name__ == "__main__":

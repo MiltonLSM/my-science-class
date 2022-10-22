@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block page_name %} | Register{% endblock %}
+
+{% block page_content %}
+
+  <div class="container rubric-cont">
+    <h1 class="my-5">Activity: </h1>
+
+    <form action="" method="POST" class="form" role="form">
+      {{ form.csrf_token() }}
+      <div class="form-group">
+        {{ wtf.form_field(form.activity_name, class="form-control") }}
+      </div>
+      <div class="row">
+        <div class="form-group col-md-6">
+          {{ wtf.form_field(form.rubric, class="form-control", placeholder="Choose a rubric") }}
+        </div>
+        <div class="form-group col-md-6">
+          {{ wtf.form_field(form.goal, class="form-control", placeholder="Choose a goal") }}
+        </div>
+      </div>
+      <div class="form-group">
+        {{ wtf.form_field(form.submit, class="form-control btn btn-primary")}}
+      </div>
+    </form>
+    
+  </div>
+
+    {% include "footer.html" %}
+    {% endblock %}

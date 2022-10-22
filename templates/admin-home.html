@@ -10,13 +10,12 @@
 
         <div class="col-md-6">
             <h3 class="mb-5">Activities</h3>
-            <ul>
-                <li>Activity 1</li>
-                <li>Activity 2</li>
-                <li>Activity 3</li>
-                <li>Activity 4</li>
-                <li>Activity 5</li>
-            </ul>
+                {% for activity in all_activities %}
+                <p>{{ activity.activity_name }}
+                    <a href="{{ url_for('edit_activity', activity_id=activity.id) }}" class="px-2">Edit</a>
+                    <a href="{{ url_for('delete_act', activity_id=activity.id) }}">Remove</a>
+                </p>
+                {% endfor %}
         </div>
 
         <div class="col-md-6">
@@ -44,7 +43,7 @@
         <div class="mt-5">
             <a class="btn btn-primary mt-3" href="{{ url_for('new_rubric') }}">Create Rubric</a>
             <a class="btn btn-primary mt-3" href="#">Add Student</a>
-            <a class="btn btn-primary mt-3" href="#">Create Activity</a>
+            <a class="btn btn-primary mt-3" href="{{ url_for('add_activity') }}">Create Activity</a>
             <a class="btn btn-primary mt-3" href="{{ url_for('add_goal') }}">Create Goal</a><br>
             <a class="btn btn-primary mt-3" href="#">Load Report</a>
         </div>

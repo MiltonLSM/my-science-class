@@ -7,6 +7,14 @@
   <div class="container w-50 form-cont">
       <h1 class="mb-5">Sign Up</h1>
 
+      {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <p class="text-danger">{{ message }}</p>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
       {{ wtf.quick_form(form, novalidate=True, button_map={"submit": "primary"}) }}
 
   </div>    
