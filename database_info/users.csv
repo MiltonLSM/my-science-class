@@ -1,0 +1,8 @@
+id,first_name,last_name,email,password,group
+1,Milton,Silva,projectsmiltonix@gmail.com,pbkdf2:sha256:260000$ogEtynU2$dc3b6a25081b1fea398b84d3b45695fb09dfc5d212ef7aaa2a7ade8e213dfe7e,ADMIN
+2,Student,One,prueba@email.com,pbkdf2:sha256:260000$xBGr1tDA$fa9fdf1cb4a080383829b6e51620d60964b114b91ba8949278930536278090a3,5A
+3,Student,Two,prueba2@email.com,pbkdf2:sha256:260000$NfbIeecZ$18e3571ed6ca57011143081ceb97fa2e399e603b46ded649bbf968a77f00d4b4,5A
+4,Student,Three,prueba3@email.com,pbkdf2:sha256:260000$OMNch8ZE$a23fe52be5421548a6ef3b3d53a6d14bc536a6ac31c90909396bd7a040e51457,5A
+5,Student,Four,prueba4@email.com,pbkdf2:sha256:260000$HWGpemNF$7e1ef9de6fcb469ba50779d505219501efa00990e046e1b04364259a065cd885,5B
+6,Student,Five,prueba5@email.com,pbkdf2:sha256:260000$eM1xycE5$4cb443e9822e4daea4ec672463d265f319ec0befa27a069ec5bacddbc68697a3,5B
+7,Student,Six,prueba6@email.com,pbkdf2:sha256:260000$hof65gK6$a0f3a76ee5e98803d03cbed50091cba35ef3dcb038f55fd037998215098a1591,5A

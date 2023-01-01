@@ -21,6 +21,7 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(250), nullable=False)
     password = db.Column(db.String(250), nullable=False)
     group = db.Column(db.String(15), nullable=False)
+    item_grade = relationship("ItemGrade", back_populates="user")
 
 class Rubric(db.Model):
     __tablename__ = "rubrics"
@@ -38,6 +39,7 @@ class RubricItem(db.Model):
     weight = db.Column(db.Float(), nullable=False)
     rubric_id = db.Column(db.Integer, db.ForeignKey("rubrics.id")) # (MANY) The many have the foreingkey
     rubric = relationship("Rubric", back_populates="items") 
+    score = relationship("ItemGrade", back_populates="items")
 
 class Goal(db.Model):
     __tablename__ = "goals"
@@ -56,3 +58,20 @@ class Activity(db.Model):
     rubric = relationship("Rubric", back_populates="activity")
     goal_id = db.Column(db.String(15), db.ForeignKey("goals.code"))
     goal = relationship("Goal", back_populates="activity")
+    item_grade = relationship("ItemGrade", back_populates="activity")
+
+class ItemGrade(db.Model):
+    __tablename__ = "item_grades"
+    id=db.Column(db.Integer, primary_key=True)
+    item_id = db.Column(db.Integer, db.ForeignKey("rubric_items.id"))
+    items = relationship("RubricItem", back_populates="score")
+    item_score = db.Column(db.Integer, nullable=False)
+    observation = db.Column(db.String(250), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    user = relationship("User", back_populates="item_grade")
+    activity_id = db.Column(db.Integer, db.ForeignKey("activities.id"))
+    activity = relationship("Activity", back_populates="item_grade")
+
+    
+# class ActivityGrade(db.Model):
+#     __tablename__ = "activity_grade"

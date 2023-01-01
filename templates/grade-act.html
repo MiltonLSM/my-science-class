@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block page_name %} | Register{% endblock %}
+
+{% block page_content %}
+
+  <div class="container rubric-cont">
+    <h1>Activity: {{ activity.activity_name }}</h1>
+    <h5 class="mb-5">Rubric: {{ activity.rubric.rubric_name }}</h5>
+  </div>
+
+ 
+  <form action="" method="POST">
+    <div class="container rubric-cont">
+      <table class="table table-hover">
+        <thead>
+          <tr class="align-top">
+            <th scope="col">Criterion</th>
+            <th scope="col">Description</th>
+            <th scope="col">Weight</th>
+            <th scope="col">Points (Out of 10)</th>
+            <th scope="col">Observations</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for item in activity.rubric.items %}
+          <tr>
+            <th scope="row">{{ item.criterion }}</th>
+            <td>{{ item.description }}</td>
+            <td class="text-center">{{ item.weight }}</td>
+            <td><input type="number" name={{ item.id }} id="points_instructions" min="0" max="10"></td>
+            <td><input type="text" name=obs{{item.id}} id="obs_instructions"></td>
+          </tr>
+        {% endfor %}        
+        </tbody>
+      </table>
+    </div>
+    
+    {{ form.csrf_token }}
+    <div class="container mt-5">
+      <div class="row">
+        <div class="col-3">
+          {{ wtf.form_field(form.group, class="form-control") }}
+        </div>
+  
+        <div class="col-6" id="students-list">
+          {{ wtf.form_field(form.students, class="form-control") }}
+        </div>
+  
+        <div class="col-3">
+          <p class="mt-2 text-center">TOTAL POINTS: <strong>8.5</strong>/10</p>
+        </div>
+  
+        <div>
+          <button class="btn btn-primary" type="submit">SAVE</button>
+        </div>
+  
+      </div>
+    </div>
+
+  </form>
+    
+
+  
+
+{% include "footer.html" %}
+{% endblock %}

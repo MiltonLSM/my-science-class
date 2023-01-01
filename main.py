@@ -1,12 +1,12 @@
-from flask import Flask, render_template, redirect, url_for, flash, abort
+from flask import Flask, render_template, redirect, url_for, flash, abort, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from flask_bootstrap import Bootstrap
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, UserMixin, LoginManager, login_required, current_user
-from forms import ActivityForm, LoginForm, RegisterForm, RubricForm, RubricItemForm, GoalForm
-from databases import app, db, User, Rubric, RubricItem, Goal, Activity
+from forms import ActivityForm, LoginForm, RegisterForm, RubricForm, RubricItemForm, GoalForm, GradeStudentForm
+from databases import app, db, User, Rubric, RubricItem, Goal, Activity, ItemGrade
 
 
 
@@ -313,6 +313,51 @@ def delete_act(activity_id):
     db.session.delete(act_to_delete)
     db.session.commit()
     return redirect(url_for("admin_home"))
+
+
+@app.route("/grade-activity/<int:activity_id>", methods=["GET", "POST"])
+@login_required
+@admin_only
+def grade_activity(activity_id):
+    activity = Activity.query.get(activity_id)
+    users = User.query.all()
+    form = GradeStudentForm()
+    form.students.choices = [(user.id, user.last_name) for user in User.query.filter_by(group='5A').all()]
+    print(form.students.choices)
+
+    if request.method == 'POST':
+        students = request.form.getlist('students')
+
+        for item in activity.rubric.items:
+            for student in students:
+
+                new_graded_item = ItemGrade(
+                    items = item,
+                    item_score = int(request.form.get(str(item.id))),
+                    observation = request.form.get('obs'+str(item.id)),
+                    user = User.query.filter_by(id=int(student)).first(),
+                    activity = Activity.query.filter_by(id=(activity_id)).first()
+                )
+                db.session.add(new_graded_item)
+        db.session.commit()
+        return redirect(url_for("admin_home"))
+
+    return render_template('grade-act.html', current_user=current_user, activity=activity, users=users, form=form)
+
+@app.route("/grade-activity/<int:activity_id>/<group>")
+def student(activity_id, group):
+    students = User.query.filter_by(group=group).all()
+    activity = Activity.query.get(activity_id)
+
+    studentList = []
+
+    for student in students:
+        studentObj = {}
+        studentObj['id'] = student.id
+        studentObj['name'] = student.last_name
+        studentList.append(studentObj)
+
+    return jsonify({'students':studentList})
 
 
 @app.route('/grade-act')

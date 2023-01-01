@@ -1,0 +1,6 @@
+id,criterion,description,weight,rubric_id
+1,Commitment,This is the test item commitment,30.0,1
+2,Responsability,This is the test item responsability,50.0,1
+3,Punctuality,This is the test item Punctuality,20.0,1
+4,Agreements,This is the test item agreements,50.0,2
+5,Communication,This is the test item communication,50.0,2
