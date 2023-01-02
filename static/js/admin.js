@@ -1,4 +1,6 @@
 
+// -----------------SHOW STUDENTS ACCORDING TO THE GROUP-----------------
+
 var group_select = document.getElementById("group");
 var students_select = document.getElementById("students");
 var window_location = window.location.href;
@@ -20,5 +22,24 @@ group_select.onchange = function() {
 
 };
 
+
+// --------------------CALCULATE AND SHOW THE TOTAL SCORE ------------------
+
+var totalScore = document.getElementById("total-score")
+
+var itemPoints = document.getElementsByClassName("item-points");
+var itemWeights = document.getElementsByClassName("item-weight");
+
+
+function changeScore() {
+    var score = 0;
+
+    for (let i = 0; i < itemPoints.length; i++) {
+        var itemScore = (Number(itemWeights[i].innerHTML)/100) * Number(itemPoints[i].value);
+        score += itemScore;
+    };
+
+    totalScore.innerHTML = score.toFixed(2);
+}
 
 

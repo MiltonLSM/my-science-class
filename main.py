@@ -6,7 +6,7 @@ from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, UserMixin, LoginManager, login_required, current_user
 from forms import ActivityForm, LoginForm, RegisterForm, RubricForm, RubricItemForm, GoalForm, GradeStudentForm
-from databases import app, db, User, Rubric, RubricItem, Goal, Activity, ItemGrade
+from databases import app, db, User, Rubric, RubricItem, Goal, Activity, ItemGrade, ActivityGrade
 
 
 
@@ -322,14 +322,19 @@ def grade_activity(activity_id):
     activity = Activity.query.get(activity_id)
     users = User.query.all()
     form = GradeStudentForm()
-    form.students.choices = [(user.id, user.last_name) for user in User.query.filter_by(group='5A').all()]
-    print(form.students.choices)
+    form.students.choices = [(user.id, user.last_name.upper() + " " + user.first_name.upper()) for user in User.query.filter_by(group='5A').all()]
 
     if request.method == 'POST':
         students = request.form.getlist('students')
 
-        for item in activity.rubric.items:
-            for student in students:
+        
+        for student in students:
+            item_points = 0
+
+            for item in activity.rubric.items:
+                points = (item.weight/100) * int(request.form.get(str(item.id)))
+                item_points += points
+                
 
                 new_graded_item = ItemGrade(
                     items = item,
@@ -339,8 +344,16 @@ def grade_activity(activity_id):
                     activity = Activity.query.filter_by(id=(activity_id)).first()
                 )
                 db.session.add(new_graded_item)
+            
+            new_graded_activity = ActivityGrade(
+                user = User.query.filter_by(id=int(student)).first(),
+                activity = Activity.query.filter_by(id=(activity_id)).first(),
+                activity_score = item_points
+            )
+            db.session.add(new_graded_activity)
+
         db.session.commit()
-        return redirect(url_for("admin_home"))
+        return redirect(url_for("grade_activity", activity_id=activity.id))
 
     return render_template('grade-act.html', current_user=current_user, activity=activity, users=users, form=form)
 
@@ -354,7 +367,7 @@ def student(activity_id, group):
     for student in students:
         studentObj = {}
         studentObj['id'] = student.id
-        studentObj['name'] = student.last_name
+        studentObj['name'] = student.last_name.upper() + " " + student.first_name.upper()
         studentList.append(studentObj)
 
     return jsonify({'students':studentList})

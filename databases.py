@@ -22,6 +22,7 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(250), nullable=False)
     group = db.Column(db.String(15), nullable=False)
     item_grade = relationship("ItemGrade", back_populates="user")
+    activity_grade = relationship("ActivityGrade", back_populates="user")
 
 class Rubric(db.Model):
     __tablename__ = "rubrics"
@@ -59,6 +60,7 @@ class Activity(db.Model):
     goal_id = db.Column(db.String(15), db.ForeignKey("goals.code"))
     goal = relationship("Goal", back_populates="activity")
     item_grade = relationship("ItemGrade", back_populates="activity")
+    activity_grade = relationship("ActivityGrade", back_populates="activity")
 
 class ItemGrade(db.Model):
     __tablename__ = "item_grades"
@@ -71,6 +73,15 @@ class ItemGrade(db.Model):
     user = relationship("User", back_populates="item_grade")
     activity_id = db.Column(db.Integer, db.ForeignKey("activities.id"))
     activity = relationship("Activity", back_populates="item_grade")
+
+class ActivityGrade(db.Model):
+    __tablename__ = "activity_grades"
+    id=db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    user = relationship("User", back_populates="activity_grade")
+    activity_id = db.Column(db.Integer, db.ForeignKey("activities.id"))
+    activity = relationship("Activity", back_populates="activity_grade")
+    activity_score = db.Column(db.Float, nullable=False)
 
     
 # class ActivityGrade(db.Model):

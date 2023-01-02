@@ -28,9 +28,9 @@
           <tr>
             <th scope="row">{{ item.criterion }}</th>
             <td>{{ item.description }}</td>
-            <td class="text-center">{{ item.weight }}</td>
-            <td><input type="number" name={{ item.id }} id="points_instructions" min="0" max="10"></td>
-            <td><input type="text" name=obs{{item.id}} id="obs_instructions"></td>
+            <td class="text-center item-weight">{{ item.weight }}</td>
+            <td><input class="item-points" type="number" name={{ item.id }} id="points{{ item.id }}" min="0" max="10" oninput="changeScore()"></td>
+            <td><input type="text" name="obs{{item.id}}" id="obs{{ item.id }}"></td>
           </tr>
         {% endfor %}        
         </tbody>
@@ -49,7 +49,7 @@
         </div>
   
         <div class="col-3">
-          <p class="mt-2 text-center">TOTAL POINTS: <strong>8.5</strong>/10</p>
+          <p class="mt-2 text-center">TOTAL POINTS: <strong id="total-score">0.0</strong>/10</p>
         </div>
   
         <div>
