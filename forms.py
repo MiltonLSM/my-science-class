@@ -54,9 +54,9 @@ class ActivityForm(FlaskForm):
         self.goal.choices = [(goal.code) for goal in Goal.query.all()]
         self.rubric.choices = [(rubric.id, rubric.rubric_name) for rubric in Rubric.query.all()]
 
-# class MultiCheckboxField(SelectMultipleField):
-#     widget = widgets.ListWidget(prefix_label=False)
-#     option_widget = widgets.CheckboxInput()
+class MultiCheckboxField(SelectMultipleField):
+    widget = widgets.ListWidget(prefix_label=False)
+    option_widget = widgets.CheckboxInput()
 
 class GradeStudentForm(FlaskForm):
     group = SelectField("Group", choices=['5A', '5B', '5C'])
