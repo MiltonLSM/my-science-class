@@ -373,6 +373,60 @@ def student(activity_id, group):
     return jsonify({'students':studentList})
 
 
+@app.route("/report/<group>")
+@login_required
+@admin_only
+def report_per_group(group):
+    grades = ActivityGrade.query.all()
+    students = User.query.filter_by(group=group).all()
+    activities_data = Activity.query.all()
+    activities = [activity for activity in activities_data]
+
+    students_data_clean = []
+    students_data = []
+    grade_activity_list = [grade.activity for grade in grades]
+    grade_user_list = [grade.user for grade in grades]
+    grade_score_list = [grade.activity_score for grade in grades]
+
+    for student in students:
+        grades_per_student = []
+        activities_per_student = []
+        scores_per_student = []
+        grades_per_student.append(student)
+        for i in range(len(grade_user_list)):
+           
+            if student == grade_user_list[i]:
+                
+                activities_per_student.append(grade_activity_list[i])
+                scores_per_student.append(grade_score_list[i])
+        grades_per_student.append(activities_per_student)
+        grades_per_student.append(scores_per_student)
+
+        students_data.append(grades_per_student)  
+    
+   
+    for score_data in students_data:
+        organized_data = []
+        organized_data.append(f"{score_data[0].last_name.upper()} {score_data[0].first_name.upper()}")
+        for act in activities:
+            if act in score_data[1]:
+                organized_data.append(f"{score_data[2][score_data[1].index(act)]:.{2}f}")
+            else:
+                organized_data.append(" ")
+        students_data_clean.append(tuple(organized_data))
+
+    return render_template('report.html', current_user=current_user, grades=grades, data=students_data_clean, headers=activities)
+
+
+@app.route("/report")
+@login_required
+@admin_only
+def grades_report():
+    activities_data = Activity.query.all()
+    activities = [activity for activity in activities_data]
+    return render_template('report.html', current_user=current_user, headers=activities)
+
+
 @app.route('/grade-act')
 @login_required
 @admin_only

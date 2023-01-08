@@ -43,3 +43,19 @@ function changeScore() {
 }
 
 
+// ---------------------FILTER THE ROPORT BY GROUP --------------------------
+
+var group_report = document.getElementById("5B");
+
+function chooseGroup() {
+    
+    console.log(group_report);
+}
+
+
+
+// group_report.onclick = function() {
+
+// }
+
+

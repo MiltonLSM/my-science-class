@@ -45,3 +45,30 @@ h5 {
 .item-form {
     height: 40px;
 }
+
+/************************ Table report grades *************************/
+
+.table {
+    border-spacing: 0;
+    margin: 1rem;
+    background-color: #ffffff;
+}
+
+.table__row:nth-child(even) {
+    background-color: #f5f5f5;
+}
+
+
+
+.table__cell {
+    padding: 8px;
+}
+
+/********************************* Footer ******************************/
+
+/* footer {
+    position: fixed;
+    bottom: 0;
+    left:0;
+    width: 100%;
+} */
